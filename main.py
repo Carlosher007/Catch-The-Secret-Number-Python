@@ -388,3 +388,80 @@ class InterfazJuegoRetro:
             self.root.after(500, parpadear)
 
         parpadear()
+
+
+class Tester:
+    """Prueba el juego y reporta errores en la consola."""
+
+    def __init__(self):
+        """Inicializa el tester con una instancia del juego."""
+        self.juego = JuegoAdivinanza()
+
+    def ejecutar_pruebas(self):
+        """Ejecuta pruebas básicas del juego."""
+        print("\n==== PRUEBAS DEL JUEGO ADIVINA EL NÚMERO ====")
+
+        # Guardar número original y forzar un número específico para pruebas
+        num_original = self.juego.numero_secreto
+        self.juego.numero_secreto = 50
+        print(f"Número secreto fijado para pruebas: {self.juego.numero_secreto}")
+
+        # Probar valores válidos
+        self._probar_intento(25, "Más alto")
+        self._probar_intento(75, "Más bajo")
+        self._probar_intento(50, "Correcto")
+
+        # Probar valores inválidos
+        self._probar_intento("abc", "número válido")
+        self._probar_intento("", "número válido")
+        self._probar_intento(0, "Fuera de rango")
+        self._probar_intento(101, "Fuera de rango")
+
+        # Verificar conteo de intentos
+        print(f"\nPrueba de conteo de intentos:")
+        self.juego = JuegoAdivinanza()  # Reiniciar juego
+        self.juego.intentos = 0
+        intentos_iniciales = self.juego.intentos
+
+        # Hacer varios intentos
+        self.juego.verificar_intento(10)
+        self.juego.verificar_intento(20)
+        self.juego.verificar_intento(30)
+
+        intentos_finales = self.juego.intentos
+        print(f"  - Intentos iniciales: {intentos_iniciales}")
+        print(f"  - Después de 3 intentos: {intentos_finales}")
+        print(f"  - Resultado: {'CORRECTO ✓' if intentos_finales == 3 else 'ERROR ✗'}")
+
+        # Restaurar número original
+        self.juego.numero_secreto = num_original
+        print("\n==== FIN DE PRUEBAS ====\n")
+
+    def _probar_intento(self, valor, resultado_esperado):
+        """Prueba un intento específico y verifica el resultado."""
+        mensaje, correcto = self.juego.verificar_intento(valor)
+        print(f"\nPrueba con intento: {valor}")
+        print(f"  - Mensaje recibido: '{mensaje}'")
+        print(f"  - Resultado esperado debe contener: '{resultado_esperado}'")
+
+        if resultado_esperado in mensaje:
+            print(f"  - Resultado: CORRECTO ✓")
+            return True
+        else:
+            print(f"  - Resultado: ERROR ✗")
+            return False
+
+
+# Punto de entrada principal
+if __name__ == "__main__":
+    # Ejecutar pruebas si se incluye el argumento --test
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] == "--test":
+        test = Tester()
+        test.ejecutar_pruebas()
+    else:
+        # Iniciar juego normalmente
+        root = tk.Tk()
+        app = InterfazJuegoRetro(root)
+        root.mainloop()
